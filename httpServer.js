@@ -34,7 +34,7 @@ app.post('/uploadData',function(req,res){
 // well known text should look like: 'POINT(-71.064544 42.28787)'
 var geometrystring = "st_geomfromtext('POINT(" + req.body.longitude + " " + req.body.latitude + ")'";
 
-var querystring = "INSERT into formdata (question,answer1,answer2,answer3,answer4,correctanswer, geom) values ('";
+var querystring = "INSERT into quizform (question,answer1,answer2,answer3,answer4,correctanswer, geom) values ('";
 querystring = querystring + req.body.question + "','" + req.body.answer1 + "','" + req.body.answer2 + "','";
 querystring = querystring + req.body.answer3 + "','" + req.body.answer4 + "','" + req.body.correctanswer+"',"+geometrystring + "))";
        	console.log(querystring);
@@ -44,7 +44,7 @@ querystring = querystring + req.body.answer3 + "','" + req.body.answer4 + "','" 
                console.log(err);
                res.status(400).send(err);
           }
-          res.status(200).send("row inserted");
+          res.status(200).send("Your question has been added!");
        });
     });
 
