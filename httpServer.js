@@ -87,7 +87,7 @@ querystring = querystring + req.body.answer3 + "','" + req.body.answer4 + "','" 
 		res.send("hello world from the HTTP server");
 	});
 
-app.get('/getPOI', function (req,res) {
+app.get('/getQuestions', function (req,res) {
      pool.connect(function(err,client,done) {
        if(err){
            console.log("not able to get connection "+ err);
@@ -99,8 +99,8 @@ app.get('/getPOI', function (req,res) {
 
         	var querystring = " SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM ";
         	querystring = querystring + "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.geom)::json As geometry, ";
-        	querystring = querystring + "row_to_json((SELECT l FROM (SELECT id, name, category) As l      )) As properties";
-        	querystring = querystring + "   FROM united_kingdom_poi  As lg limit 100  ) As f ";
+        	querystring = querystring + "row_to_json((SELECT l FROM (SELECT question, answer1, answer2, answer3, answer4, correctanswer) As l      )) As properties";
+        	querystring = querystring + "   FROM quizform  As lg limit 100  ) As f ";
         	console.log(querystring);
         	client.query(querystring,function(err,result){
 
@@ -137,14 +137,23 @@ app.get('/getGeoJSON/:tablename/:geomcolumn', function (req,res) {
         	// now run the query
         	client.query(querystring,function(err,result){
           //call `done()` to release the client back to the pool
-          	done(); 
+			console.log("trying...");
+				done(); 
 	          if(err){
                	console.log(err);
                		res.status(400).send(err);
           	}
-           	colnames = result.rows;
-       	});
-        	console.log("colnames are " + colnames);
+           	
+			//	for (var i =0; i< result.rows.length ;i++) {
+			//		console.log(result.rows[i].string_agg);
+			//	}
+			thecolnames = result.rows[0].string_agg;
+				colnames = thecolnames;
+				console.log("the colnames are "+thecolnames);
+			
+			
+			//colnames = result.rows;
+        	//console.log("colnames are " + colnames);
 
         	// now use the inbuilt geoJSON functionality
         	// and create the required geoJSON format using a query adapted from here:  
@@ -166,6 +175,7 @@ app.get('/getGeoJSON/:tablename/:geomcolumn', function (req,res) {
                		res.status(400).send(err);
           	 }
            	res.status(200).send(result.rows);
+			});
        	});
     });
 });
